@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block title %}
+    我的网站|首页
+{% endblock title %}
+
+{% block head_extends %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/home.css' %}">
+    <script src="http://cdn.highcharts.com.cn/highcharts/highcharts.js"></script>
+{% endblock head_extends %}
+
+{% block content %}
+    <h3 class="home-content">欢迎访问我的网站</h3>
+    <div class="container">
+    <div class="row">
+    <div class="container">
+        <div class="row">{# col-**-8 是固定格式 bootstrap栅格系统 中间的参数表示的是屏幕类型#}
+            <div class="col-xs-12 col-sm-8 col-md-9 col-lg-10">
+                <div class="panel panel-default">{# bootstrap面板 #}
+                    <div class="panel-heading">博客阅读变化曲线图</div>
+                    <div class="panel-body">
+                        <!-- 图表容器 DOM -->
+                        <div id="container"></div>
+                        <!--今天24小时内的热门博客-->
+                            <script>
+                                // 图表配置
+                                var options = {
+                                    chart: {type: 'line'},
+                                    title: {text: null},
+                                    xAxis: {
+                                        categories: {{ dates|safe }},  // x 轴分类
+                                        tickmarkPlacement: 'on',
+                                        title:{text: '前七日博客阅读变化'},
+                                        },
+                                    yAxis: {
+                                        title: {text: null},
+                                        labels:{enabled: false},
+                                        gridLineDashStyle:'Dash',
+                                        },
+                                    series: [{                              // 数据列
+                                        name: '阅读量',                        // 数据列名
+                                        data: {{ read_nums }}                    // 数据
+                                        }],
+                                    plotOptions: {
+                                        line: {
+                                        dataLabels: {
+                                            enabled: true
+                                            }
+                                        }
+                                    },
+                                    legend:{enabled: false},
+                                    credits:{enabled: false},
+                                        };
+                                    // 图表初始化函数
+                                    var chart = Highcharts.chart('container', options);
+                            </script>
+                    </div>
+                </div>
+            </div>
+            <div class="hidden-xs col-sm-4 col-md-3 col-lg-2">
+                <div class="panel panel-default">
+                    <div class="panel-heading">今日热门点击</div>
+                    <div class="panel-body">
+                        <ul>
+                            {% for hot_data in today_hot_data %}
+                                <li><a href="{% url 'blog_detail' hot_data.content_object.pk %}">{{ hot_data.content_object.title }}（{{ hot_data.read_num }}）</a></li>
+                            {% empty %}
+                                <li>今日暂时没有热门博客</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">24小时内热门点击</div>
+                    <div class="panel-body">
+                        <ul>
+                            {% for yesterday_data in yesterday_hot_data %}
+                                <li><a href="{% url 'blog_detail' yesterday_data.content_object.pk %}">{{ yesterday_data.content_object.title }}（{{ yesterday_data.read_num }}）</a></li>
+                            {% empty %}
+                                <li>今日暂时没有热门博客</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">本周热门点击</div>
+                    <div class="panel-body">
+                        <ul>
+                            {% for seven_data in seven_hot_data %}
+                                <li><a href="{% url 'blog_detail' seven_data.id %}">{{ seven_data.title }}（{{ seven_data.read_num_sum }}）</a></li>
+                            {% empty %}
+                                <li>今日暂时没有热门博客</li>
+                            {% endfor %}
+                         </ul>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+
+{% endblock content %}
+
+{% block nav_home %}
+    active
+{% endblock nav_home %}
